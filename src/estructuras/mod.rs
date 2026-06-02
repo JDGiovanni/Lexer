@@ -1,7 +1,7 @@
 //! Elida: tabla de símbolos y cola de tokens.
 //!
-//! Voy a adaptar `cola` y `hash_map` desde la librería
+//! `cola` y `hash_map` se adaptan desde la librería 
 
-// Por ahora solo verifico que el crate de soporte enlace bien en el proyecto.
-#[allow(unused_imports)]
-pub use LibreriaDeSoporte;
+pub mod cola;
+
+pub use cola::ColaTokens;
