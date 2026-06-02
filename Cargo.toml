@@ -1,6 +1,9 @@
 [package]
-name = "src"
+name = "proyecto_lexer"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+# Elida — en mi PC la librería está aquí; cada quien cambie `path` por su ruta local.
+# C:\Users\Usuario\OneDrive\Desktop\compiladores\1\LibreriaDeSoporte\LibreriaDeSoporte
+LibreriaDeSoporte = { path = "../1/LibreriaDeSoporte/LibreriaDeSoporte" }
