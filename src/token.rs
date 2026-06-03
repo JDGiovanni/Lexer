@@ -16,6 +16,8 @@ pub enum TipoToken {
     Operator,
     /// Símbolos de control y agrupación: ;, ,, (, ), {, }, [, ], :
     Punctuator,
+    /// para almacenar el error de mensaje lexico
+    Error(String),
 }
 
 impl TipoToken {
@@ -27,6 +29,7 @@ impl TipoToken {
             TipoToken::LiteralNumber => "LITERAL_NUMBER",
             TipoToken::Operator => "OPERATOR",
             TipoToken::Punctuator => "PUNCTUATOR",
+            TipoToken::Error(_) => "ERROR",
         }
     }
 }
