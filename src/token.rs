@@ -1,26 +1,18 @@
-/// Contrato compartido del analizador léxico (tipo, valor, ubicación).
-///
-/// Categorías alineadas con el ejercicio de la calculadora.
+// Contrato compartido: tipo, valor y ubicacion (linea, columna)
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum TipoToken {
-    /// Palabras reservadas: void, float, int, return, if, else, while, break, switch, case, default
     Keyword,
-    /// Nombres de funciones y variables
     Identifier,
-    /// Cadenas entre comillas
     LiteralString,
-    /// Constantes numéricas
     LiteralNumber,
-    /// Símbolos aritméticos, lógicos o de asignación
     Operator,
-    /// Símbolos de control y agrupación: ;, ,, (, ), {, }, [, ], :
     Punctuator,
-    /// para almacenar el error de mensaje lexico
-    Error(String),
+    Error(String), // mensaje de error lexico (lo agrego Jhonmar)
 }
 
 impl TipoToken {
+    /// Nombre del tipo para el reporte
     pub fn nombre(&self) -> &'static str {
         match self {
             TipoToken::Keyword => "KEYWORD",
@@ -48,6 +40,7 @@ pub struct Token {
 }
 
 impl Token {
+    /// Crea un token con su posicion en el archivo
     pub fn nuevo(tipo: TipoToken, valor: impl Into<String>, linea: usize, columna: usize) -> Self {
         Token {
             tipo,
@@ -70,7 +63,7 @@ impl std::fmt::Display for Token {
     }
 }
 
-/// Palabras reservadas del lenguaje
+// Palabras reservadas del lenguaje (calculadora)
 pub const PALABRAS_RESERVADAS: &[&str] = &[
     "void", "float", "int", "return", "if", "else", "while", "break", "switch", "case", "default",
 ];

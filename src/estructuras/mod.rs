@@ -1,4 +1,4 @@
-//! Elida — Integrante 3: tabla de símbolos, cola de tokens y gestor de integración.
+// Integrante 3 — tabla de simbolos, cola y gestor
 
 pub mod cola;
 pub mod gestor;

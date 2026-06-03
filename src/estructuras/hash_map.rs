@@ -1,4 +1,4 @@
-// Elida — tabla de símbolos adaptada desde LibreriaDeSoporte::ds::map (Vec de entradas).
+// Tabla de simbolos — adaptada de la libreria (Vec de entradas)
 
 use crate::token::{TipoToken, PALABRAS_RESERVADAS};
 
@@ -29,6 +29,7 @@ impl TablaSimbolos {
         }
     }
 
+    /// Inserta o actualiza un simbolo
     pub fn insertar(&mut self, nombre: String, tipo: TipoToken, ambito: impl Into<String>) {
         let ambito = ambito.into();
         if let Some(entrada) = self
@@ -46,6 +47,7 @@ impl TablaSimbolos {
         }
     }
 
+    /// Busca por nombre
     pub fn buscar(&self, nombre: &str) -> Option<&EntradaSimbolo> {
         self.datos.iter().find(|e| e.nombre == nombre)
     }
@@ -64,13 +66,14 @@ impl TablaSimbolos {
         PALABRAS_RESERVADAS.contains(&lexema)
     }
 
-    /// Distingue palabra reservada, identificador ya registrado o identificador nuevo.
+    /// Valida si es reservada o identificador
     pub fn clasificar_lexema(&mut self, lexema: &str) -> ResultadoClasificacion {
         if Self::es_palabra_reservada(lexema) {
             ResultadoClasificacion::PalabraReservada
         } else if self.contiene(lexema) {
             ResultadoClasificacion::IdentificadorExistente
         } else {
+            // identificador nuevo: lo registro en la tabla
             self.insertar(
                 lexema.to_string(),
                 TipoToken::Identifier,
@@ -80,6 +83,7 @@ impl TablaSimbolos {
         }
     }
 
+    /// Devuelve KEYWORD o IDENTIFIER segun el lexema
     pub fn tipo_para_lexema(&self, lexema: &str) -> TipoToken {
         if Self::es_palabra_reservada(lexema) {
             TipoToken::Keyword
@@ -89,13 +93,13 @@ impl TablaSimbolos {
     }
 
     pub fn ver_tabla(&self) {
-        println!("---- Tabla de símbolos ----");
+        println!("---- Tabla de simbolos ----");
         if self.datos.is_empty() {
-            println!("(vacía)");
+            println!("(vacia)");
         } else {
             for entrada in &self.datos {
                 println!(
-                    "{} | {} | ámbito: {}",
+                    "{} | {} | ambito: {}",
                     entrada.nombre,
                     entrada.tipo.nombre(),
                     entrada.ambito

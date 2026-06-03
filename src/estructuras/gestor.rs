@@ -1,4 +1,4 @@
-// Elida — une tabla de símbolos y cola; el autómata usa esto para validar y encolar lexemas.
+// Une tabla de simbolos y cola — lo usa el automata
 
 use crate::token::{Token, TipoToken, PALABRAS_RESERVADAS};
 
@@ -20,7 +20,7 @@ impl GestorEstructuras {
         gestor
     }
 
-    // Registra las reservadas del lenguaje al iniciar (void, int, if, etc.).
+    // Carga void, int, if, etc. al iniciar
     fn cargar_palabras_reservadas(&mut self) {
         for palabra in PALABRAS_RESERVADAS {
             self.tabla.insertar(
@@ -31,7 +31,7 @@ impl GestorEstructuras {
         }
     }
 
-    /// Valida si el lexema es reservada o identificador, crea el token y lo encola.
+    /// Clasifica lexema, crea token y lo encola
     pub fn procesar_lexema(
         &mut self,
         lexema: &str,
@@ -45,7 +45,7 @@ impl GestorEstructuras {
         resultado
     }
 
-    /// Encola tokens que ya vienen clasificados (números, strings, operadores, etc.).
+    /// Para numeros, strings, operadores, etc.
     pub fn encolar_token(&mut self, token: Token) {
         self.cola.encolar(token);
     }

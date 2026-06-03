@@ -8,13 +8,13 @@ use reportes::GestorReportes;
 use token::{TipoToken, Token};
 
 fn main() {
-    // Elida — genera y encola tokens
+    // Demo: mi parte genera tokens
     let mut gestor = GestorEstructuras::nuevo();
     gestor.procesar_lexema("int", 1, 1);
     gestor.procesar_lexema("suma", 2, 5);
     gestor.encolar_token(Token::nuevo(TipoToken::LiteralNumber, "42", 3, 1));
 
-    // Integrante 4 — recibe tokens y muestra reporte final
+    // Pasa tokens al reporte de Jhonmar
     let mut reportes = GestorReportes::nuevo();
     while let Some(token) = gestor.cola.desencolar() {
         reportes.registrar_token(token);
