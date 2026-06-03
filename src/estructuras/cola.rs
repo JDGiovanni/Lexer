@@ -1,48 +1,47 @@
-// Cola de tokens — adaptada de la libreria (VecDeque)
+// Cola de tokens — usa Queue<T> de la libreria directamente
 
-use std::collections::VecDeque;
+use LibreriaDeSoporte::ds::queue::Queue;
 
 use crate::token::Token;
 
 pub struct ColaTokens {
-    elementos: VecDeque<Token>,
+    inner: Queue<Token>,
 }
 
 impl ColaTokens {
-    /// Crea cola vacia
+    /// Crea cola vacia (Queue de la libreria)
     pub fn nueva() -> Self {
         Self {
-            elementos: VecDeque::new(),
+            inner: Queue::new(),
         }
     }
 
     /// Agrega token al final
     pub fn encolar(&mut self, token: Token) {
-        self.elementos.push_back(token);
+        self.inner.push_back(token);
     }
 
     /// Saca el primer token
     pub fn desencolar(&mut self) -> Option<Token> {
-        self.elementos.pop_front()
+        self.inner.pop_front()
     }
 
+    /// True si no hay tokens pendientes
     pub fn esta_vacia(&self) -> bool {
-        self.elementos.is_empty()
+        self.inner.is_empty()
     }
 
     pub fn cantidad(&self) -> usize {
-        self.elementos.len()
+        self.inner.len()
     }
 
-    /// Muestra tokens en orden
+    /// Muestra tokens en orden (depuracion)
     pub fn ver_cola(&self) {
         println!("---- Flujo de tokens ----");
         if self.esta_vacia() {
             println!("(vacia)");
         } else {
-            for token in &self.elementos {
-                println!("{token}");
-            }
+            self.inner.ver_cola();
         }
         println!("--------------------------");
     }

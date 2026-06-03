@@ -1,49 +1,108 @@
 pub mod automata;
+
 use automata::{EstadoAFD, ejecutar_transicion_afd};
 
 use crate::estructuras::GestorEstructuras;
+use crate::input::InputStream;
 use crate::token::{Token, TipoToken};
 
-pub fn siguiente_token(gestor: &mut GestorEstructuras) {
-    let mut estado_actual = EstadoAFD::Inicial;
-    let mut lexema_actual = String::new();
-    
-    let linea = 1;   // Temporal para que compile
-    let columna = 1; // Temporal para que compile
-
-    while estado_actual != EstadoAFD::Aceptacion && estado_actual != EstadoAFD::Error {
-
-        let c = ' '; 
-
-        let nuevo_estado = ejecutar_transicion_afd(&estado_actual, c);
-
-        if nuevo_estado == EstadoAFD::Aceptacion {
-            // Aquí le dices al Integrante 1 (Scanner) que retroceda un espacio
-            break; 
+/// Recorre el archivo completo y encola todos los tokens
+pub fn analizar_fuente(scanner: &mut InputStream<'_>, gestor: &mut GestorEstructuras) {
+    loop {
+        scanner.saltar_espacios();
+        if scanner.mirar_siguiente().is_none() {
+            break;
         }
-
-        estado_actual = nuevo_estado;
-
-        if estado_actual != EstadoAFD::Error {
-            lexema_actual.push(c);
+        if !siguiente_token(scanner, gestor) {
+            break;
         }
     }
+}
 
-    match estado_actual {
-        EstadoAFD::Aceptacion => {
-            
-            if c.is_alphabetic() {
-                gestor.procesar_lexema(lexema_actual, linea, columna);
-            } else {
-                
-                let tipo = TipoToken::NUM; // Esto dependerá de si es Dígito u Operador
-                let token = Token::nuevo(tipo, lexema_actual, linea, columna);
-                gestor.encolar_token(token);
-            }
-        }
-        EstadoAFD::Error => {
+/// Reconoce un token: salta espacios, lee caracteres con el AFD, clasifica y encola
+pub fn siguiente_token(scanner: &mut InputStream<'_>, gestor: &mut GestorEstructuras) -> bool {
+    scanner.saltar_espacios();
+    let Some(&c) = scanner.mirar_siguiente() else {
+        return false;
+    };
 
-        }
-        _ => {}
+    let linea_inicio = scanner.linea;
+    let columna_inicio = scanner.columna;
+
+    let mut estado = ejecutar_transicion_afd(&EstadoAFD::Inicial, c);
+    if estado == EstadoAFD::Error {
+        let ch = scanner.avanzar().unwrap();
+        gestor.encolar_token(Token::nuevo(
+            TipoToken::Error("caracter no reconocido".to_string()),
+            ch.to_string(),
+            linea_inicio,
+            columna_inicio,
+        ));
+        return true;
     }
+
+    let mut lexema = String::new();
+    let ch = scanner.avanzar().unwrap();
+    lexema.push(ch);
+
+    loop {
+        let Some(&siguiente) = scanner.mirar_siguiente() else {
+            break;
+        };
+        let nuevo = ejecutar_transicion_afd(&estado, siguiente);
+        if nuevo == EstadoAFD::Aceptacion {
+            break;
+        }
+        if nuevo == EstadoAFD::Error {
+            break;
+        }
+        let leido = scanner.avanzar().unwrap();
+        lexema.push(leido);
+        estado = nuevo;
+    }
+
+    if lexema.is_empty() {
+        return false;
+    }
+
+    clasificar_y_encolar(gestor, &lexema, linea_inicio, columna_inicio);
+    true
+}
+
+/// Tipo segun lexema completo: "int" se compara en la tabla de reservadas
+fn clasificar_y_encolar(
+    gestor: &mut GestorEstructuras,
+    lexema: &str,
+    linea: usize,
+    columna: usize,
+) {
+    let primer = lexema.chars().next().unwrap();
+    if primer.is_alphabetic() || primer == '_' {
+        gestor.procesar_lexema(lexema, linea, columna);
+    } else if lexema.chars().all(|c| c.is_ascii_digit()) {
+        gestor.encolar_token(Token::nuevo(
+            TipoToken::LiteralNumber,
+            lexema,
+            linea,
+            columna,
+        ));
+    } else if lexema.len() == 1 && es_puntuador(primer) {
+        gestor.encolar_token(Token::nuevo(
+            TipoToken::Punctuator,
+            lexema,
+            linea,
+            columna,
+        ));
+    } else {
+        gestor.encolar_token(Token::nuevo(
+            TipoToken::Operator,
+            lexema,
+            linea,
+            columna,
+        ));
+    }
+}
+
+fn es_puntuador(c: char) -> bool {
+    matches!(c, ';' | ',' | '(' | ')' | '{' | '}' | '[' | ']')
 }

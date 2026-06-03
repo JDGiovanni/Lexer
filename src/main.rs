@@ -1,20 +1,26 @@
 mod estructuras;
 mod input;
+mod lexer;
 mod token;
 mod reportes;
 
 use estructuras::GestorEstructuras;
+use input::InputStream;
+use lexer::analizar_fuente;
 use reportes::GestorReportes;
-use token::{TipoToken, Token};
+
+/// Archivo de prueba: debe estar en la raiz del proyecto (junto a Cargo.toml)
+const ARCHIVO_FUENTE: &str = "codigo_fuente.txt";
 
 fn main() {
-    // Demo: mi parte genera tokens
-    let mut gestor = GestorEstructuras::nuevo();
-    gestor.procesar_lexema("int", 1, 1);
-    gestor.procesar_lexema("suma", 2, 5);
-    gestor.encolar_token(Token::nuevo(TipoToken::LiteralNumber, "42", 3, 1));
+    let contenido = std::fs::read_to_string(ARCHIVO_FUENTE)
+        .unwrap_or_else(|_| panic!("No se encontro {ARCHIVO_FUENTE} en la raiz del proyecto"));
 
-    // Pasa tokens al reporte de Jhonmar
+    let mut scanner = InputStream::new(&contenido);
+    let mut gestor = GestorEstructuras::nuevo();
+
+    analizar_fuente(&mut scanner, &mut gestor);
+
     let mut reportes = GestorReportes::nuevo();
     while let Some(token) = gestor.cola.desencolar() {
         reportes.registrar_token(token);

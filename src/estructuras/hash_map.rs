@@ -1,4 +1,6 @@
-// Tabla de simbolos — adaptada de la libreria (Vec de entradas)
+// Tabla de simbolos — usa Tabla<K,V> de la libreria directamente
+
+use LibreriaDeSoporte::ds::tabla::Tabla;
 
 use crate::token::{TipoToken, PALABRAS_RESERVADAS};
 
@@ -17,63 +19,49 @@ pub enum ResultadoClasificacion {
 }
 
 pub struct TablaSimbolos {
-    datos: Vec<EntradaSimbolo>,
+    tabla: Tabla<String, EntradaSimbolo>,
     ambito_actual: String,
 }
 
 impl TablaSimbolos {
     pub fn nueva() -> Self {
         Self {
-            datos: Vec::new(),
+            tabla: Tabla::new(),
             ambito_actual: "global".to_string(),
         }
     }
 
-    /// Inserta o actualiza un simbolo
+    /// Inserta o actualiza un simbolo en la tabla de la libreria
     pub fn insertar(&mut self, nombre: String, tipo: TipoToken, ambito: impl Into<String>) {
         let ambito = ambito.into();
-        if let Some(entrada) = self
-            .datos
-            .iter_mut()
-            .find(|e| e.nombre == nombre && e.ambito == ambito)
-        {
-            entrada.tipo = tipo;
-        } else {
-            self.datos.push(EntradaSimbolo {
-                nombre,
-                tipo,
-                ambito,
-            });
-        }
+        let entrada = EntradaSimbolo {
+            nombre: nombre.clone(),
+            tipo,
+            ambito,
+        };
+        self.tabla.insertar(nombre, entrada);
     }
 
-    /// Busca por nombre
+    /// Busca por nombre de lexema
     pub fn buscar(&self, nombre: &str) -> Option<&EntradaSimbolo> {
-        self.datos.iter().find(|e| e.nombre == nombre)
-    }
-
-    pub fn buscar_en_ambito(&self, nombre: &str, ambito: &str) -> Option<&EntradaSimbolo> {
-        self.datos
-            .iter()
-            .find(|e| e.nombre == nombre && e.ambito == ambito)
+        self.tabla.buscar_str(nombre)
     }
 
     pub fn contiene(&self, nombre: &str) -> bool {
-        self.buscar(nombre).is_some()
+        self.tabla.contiene_str(nombre)
     }
 
     pub fn es_palabra_reservada(lexema: &str) -> bool {
         PALABRAS_RESERVADAS.contains(&lexema)
     }
 
-    /// Valida si es reservada o identificador
+    /// Compara lexema completo contra reservadas e identificadores
     pub fn clasificar_lexema(&mut self, lexema: &str) -> ResultadoClasificacion {
         if Self::es_palabra_reservada(lexema) {
             ResultadoClasificacion::PalabraReservada
         } else if self.contiene(lexema) {
             ResultadoClasificacion::IdentificadorExistente
         } else {
-            // identificador nuevo: lo registro en la tabla
             self.insertar(
                 lexema.to_string(),
                 TipoToken::Identifier,
@@ -83,7 +71,7 @@ impl TablaSimbolos {
         }
     }
 
-    /// Devuelve KEYWORD o IDENTIFIER segun el lexema
+    /// KEYWORD si esta en PALABRAS_RESERVADAS, si no IDENTIFIER
     pub fn tipo_para_lexema(&self, lexema: &str) -> TipoToken {
         if Self::es_palabra_reservada(lexema) {
             TipoToken::Keyword
@@ -94,17 +82,13 @@ impl TablaSimbolos {
 
     pub fn ver_tabla(&self) {
         println!("---- Tabla de simbolos ----");
-        if self.datos.is_empty() {
-            println!("(vacia)");
-        } else {
-            for entrada in &self.datos {
-                println!(
-                    "{} | {} | ambito: {}",
-                    entrada.nombre,
-                    entrada.tipo.nombre(),
-                    entrada.ambito
-                );
-            }
+        for (nombre, entrada) in self.tabla.iter() {
+            println!(
+                "{} | {} | ambito: {}",
+                nombre,
+                entrada.tipo.nombre(),
+                entrada.ambito
+            );
         }
         println!("---------------------------");
     }

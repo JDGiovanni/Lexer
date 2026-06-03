@@ -1,4 +1,4 @@
-// Une tabla de simbolos y cola — lo usa el automata
+// Une tabla de simbolos (Tabla libreria) y cola (Queue libreria)
 
 use crate::token::{Token, TipoToken, PALABRAS_RESERVADAS};
 
@@ -20,7 +20,7 @@ impl GestorEstructuras {
         gestor
     }
 
-    // Carga void, int, if, etc. al iniciar
+    /// Registra void, int, if... en la tabla al iniciar
     fn cargar_palabras_reservadas(&mut self) {
         for palabra in PALABRAS_RESERVADAS {
             self.tabla.insertar(
@@ -31,7 +31,7 @@ impl GestorEstructuras {
         }
     }
 
-    /// Clasifica lexema, crea token y lo encola
+    /// Lexema alfabetico: clasifica KEYWORD/IDENTIFIER y encola
     pub fn procesar_lexema(
         &mut self,
         lexema: &str,
@@ -45,7 +45,7 @@ impl GestorEstructuras {
         resultado
     }
 
-    /// Para numeros, strings, operadores, etc.
+    /// Numeros, operadores y simbolos ya clasificados
     pub fn encolar_token(&mut self, token: Token) {
         self.cola.encolar(token);
     }
