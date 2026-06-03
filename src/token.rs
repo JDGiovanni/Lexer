@@ -2,7 +2,7 @@
 ///
 /// Categorías alineadas con el ejercicio de la calculadora.
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum TipoToken {
     /// Palabras reservadas: void, float, int, return, if, else, while, break, switch, case, default
     Keyword,
@@ -21,7 +21,7 @@ pub enum TipoToken {
 }
 
 impl TipoToken {
-    pub fn nombre(self) -> &'static str {
+    pub fn nombre(&self) -> &'static str {
         match self {
             TipoToken::Keyword => "KEYWORD",
             TipoToken::Identifier => "IDENTIFIER",

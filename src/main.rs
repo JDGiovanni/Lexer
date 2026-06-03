@@ -15,7 +15,7 @@ fn main() {
     gestor.encolar_token(Token::nuevo(TipoToken::LiteralNumber, "42", 3, 1));
 
     // Integrante 4 — recibe tokens y muestra reporte final
-    let mut reportes = GestorReportes::new();
+    let mut reportes = GestorReportes::nuevo();
     while let Some(token) = gestor.cola.desencolar() {
         reportes.registrar_token(token);
     }
